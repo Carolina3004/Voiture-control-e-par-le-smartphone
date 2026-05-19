@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <!-- Page title shown in the browser tab -->
+    <title>ESP32 Car Control</title>
+
+    <style>
+        /* General page styling */
+        body {
+            font-family: cursive; /* Text font */
+            text-align: center; /* Center all text */
+            background: #fcfefd; /* Light background color */
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Main button style */
+        button {
+            padding: 2em 3em; /* Button size */
+            font-size: 1.2em; /* Text size */
+            margin: 0;
+            border-radius: 12px; /* Rounded corners */
+            border: none;
+            background: #27d3a9; /* Button color */
+            color: white;
+            cursor: pointer; /* Hand cursor on hover */
+            transition: background-color 0.3s ease;
+            min-width: 80px;
+            max-width: 150px;
+            box-sizing: border-box;
+            flex-shrink: 0; /* Prevent shrinking */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            /* Button color when mouse is over it */
+            button:hover {
+                background: #058672;
+            }
+
+        /* Container for all movement buttons */
+        .button-grid {
+            display: flex;
+            flex-direction: column; /* Stack rows vertically */
+            align-items: center;
+            gap: 0.5em;
+            max-width: 600px;
+            margin: 0 auto; /* Center horizontally */
+        }
+
+        /* Row for forward button */
+        .top-row, .bottom-row {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Row for left, stop, right buttons */
+        .middle-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            gap: 0.5em;
+        }
+
+        /* Speed slider styling */
+        .slider {
+            width: 80%;
+            max-width: 400px;
+            accent-color: #058672; /* Slider color */
+        }
+
+        /* Speed control section */
+        .speed-controls {
+            margin: 20px;
+        }
+
+            /* Speed buttons (reset) */
+            .speed-controls button {
+                padding: 0.5em 1em;
+                font-size: 1em;
+                margin: 0.25em;
+            }
+
+            /* Center reset button */
+            .speed-controls button {
+                display: flex;
+                margin: 0.5em auto;
+            }
+
+        /* Adjust layout for small screens (phones) */
+        @media (max-width: 480px) {
+            button {
+                font-size: 0.8em;
+                padding: 1em 1.5em;
+            }
+
+            .middle-row {
+                gap: 0.25em;
+            }
+
+            .button-grid {
+                gap: 0.25em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Page title -->
+    <h1>Control Your Car</h1>
+
+    <!-- Speed control section -->
+    <div class="speed-controls">
+        <!-- Display current speed value -->
+        <h3>Speed: <span id="speedVal">255</span></h3>
+
+        <!-- Slider to choose speed (0–255 for ESP32 PWM) -->
+        <input type="range" min="0" max="255" value="255" class="slider"
+               id="speedSlider" oninput="updateSpeed(this.value)">
+
+        <br>
+
+        <!-- Reset speed to zero -->
+        <button onclick="resetSpeed()">Reset</button>
+    </div>
+
+    <br><br>
+
+    <!-- Movement control buttons -->
+    <div class="button-grid">
+
+        <!-- Forward -->
+        <div class="top-row">
+            <button onclick="fetch('/forward')">Forward</button>
+        </div>
+
+        <!-- Left, Stop, Right -->
+        <div class="middle-row">
+            <button onclick="fetch('/left')">Left</button>
+            <button onclick="fetch('/stop')">Stop</button>
+            <button onclick="fetch('/right')">Right</button>
+        </div>
+
+        <!-- Backward -->
+        <div class="bottom-row">
+            <button onclick="fetch('/back')">Backward</button>
+        </div>
+    </div>
+
+    <script>
+    /*
+     * Called whenever the speed slider is moved
+     * - Updates the speed text on the page
+     * - Sends the speed value to the ESP32
+     */
+    function updateSpeed(val) {
+        document.getElementById('speedVal').textContent = val;
+        fetch('/speed?value=' + val);
+    }
+
+    /*
+     * Resets speed to 0
+     * - Slider goes to zero
+     * - Speed text updates
+     * - ESP32 receives speed = 0
+     */
+    function resetSpeed() {
+        document.getElementById('speedSlider').value = 0;
+        document.getElementById('speedVal').textContent = 0;
+        fetch('/speed?value=0');
+    }
+    </script>
+
+</body>
+</html>
